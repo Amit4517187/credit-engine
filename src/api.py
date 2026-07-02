@@ -2,6 +2,7 @@ from fastapi import FastAPI , HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from src.predict import predict_risk
+from src.explain import explain_decision
 
 app = FastAPI()
 
@@ -26,7 +27,16 @@ async def health():
 @app.post("/predict")
 async def predict(user : UserData):
         try:
-            return predict_risk(user.dict())
+            result = predict_risk(user.dict())
+
+            try:
+                 result['explanation'] = explain_decision(user.dict(), result)
+            except Exception:
+                 result["explanation"] = (
+                      "Explanation service is temporarily unavailable. Please try again later."
+                 )
+
+            return result
         except Exception as e:
             raise HTTPException (status_code = 500 , detail=str(e))
 
