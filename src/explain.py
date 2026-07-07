@@ -4,11 +4,15 @@ from groq import Groq
 
 load_dotenv()
 
-client = Groq(
-    api_key = os.getenv('GROQ_API_KEY')
-)
 
 def explain_decision(user_data: dict , prediction: dict) -> str:
+    api_key = os.getenv('GROQ_API_KEY')
+
+    if not api_key:
+        raise ValueError('GROQ_API_KEY is not configured.')
+    
+    client = Groq(api_key=api_key)
+
     prompt =f"""
 you are a credit risk analyst. explain this loan decision to a user in simple terms.
 

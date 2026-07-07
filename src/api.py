@@ -31,7 +31,8 @@ async def predict(user : UserData):
 
             try:
                  result['explanation'] = explain_decision(user.dict(), result)
-            except Exception:
+            except Exception as e:
+                 print(f"Explanation service error: {e}")
                  result["explanation"] = (
                       "Explanation service is temporarily unavailable. Please try again later."
                  )
