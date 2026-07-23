@@ -13,23 +13,37 @@ def explain_decision(user_data: dict , prediction: dict) -> str:
     
     client = Groq(api_key=api_key)
 
-    prompt =f"""
-you are a credit risk analyst. explain this loan decision to a user in simple terms.
+    prompt =prompt = f"""
+You are an experienced credit underwriting analyst for an Indian fintech company.
 
-customer:
-- Income: {user_data.get('AMT_INCOME_TOTAL' , 0)}
-- loan_amount: {user_data.get('AMT_CREDIT' , 0)}
+Customer Information:
+- Annual Income: ₹{user_data.get('AMT_INCOME_TOTAL')}
+- Requested Loan Amount: ₹{user_data.get('AMT_CREDIT')}
+- Age: {user_data.get('DAYS_BIRTH')}
+- Employment Duration: {user_data.get('DAYS_EMPLOYED')} years
 
-Decision: {prediction['decision']}
-Risk score: {prediction['risk_score']} (higher = more risky)
+Prediction:
+- Decision: {prediction['decision']}
+- Risk Score: {prediction['risk_score']}
 
-Explain the decision in 2-3 simple sentance. why this decision was made.
-Map the explaination to a indian fintech context.
+Instructions:
+
+1. Use ONLY the information above.
+2. Never invent customer information.
+3. Never say income is zero unless Annual Income is actually 0.
+4. Never assume missing information.
+5. Explain the decision in simple language.
+6. Keep the explanation under 100 words.
+7. Use an Indian banking / fintech context.
 """
     
     response = client.chat.completions.create(
         model = "llama-3.3-70b-versatile",
         messages = [
+            {
+                "role" : "system",
+                "content" : "you are an expert indian credit underwriting analyst."
+            },
             {
             "role": "user",
             "content": prompt

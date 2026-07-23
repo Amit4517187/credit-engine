@@ -14,11 +14,11 @@ app.add_middleware(
 )
 
 class UserData(BaseModel):
-    AMT_INCOME_TOTAL : float = 0
-    AMT_CREDIT : float = 0
-    AMT_ANNUITY : float = 0
-    DAYS_BIRTH : float = 0
-    DAYS_EMPLOYED : float = 0 
+    AMT_INCOME_TOTAL : float 
+    AMT_CREDIT : float 
+    AMT_ANNUITY : float 
+    DAYS_BIRTH : float 
+    DAYS_EMPLOYED : float 
 
 @app.get("/health")
 async def health():
@@ -27,10 +27,13 @@ async def health():
 @app.post("/predict")
 async def predict(user : UserData):
         try:
-            result = predict_risk(user.dict())
+            user_data = user.model_dump()
+            result = predict_risk(user_data)
 
             try:
-                 result['explanation'] = explain_decision(user.dict(), result)
+                 result['explanation'] = explain_decision(
+                 user_data,
+                 result)
             except Exception as e:
                  print(f"Explanation service error: {e}")
                  result["explanation"] = (
